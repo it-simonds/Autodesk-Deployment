@@ -39,3 +39,6 @@ function Check-IPAddress {
 		#If its not on the network, then it checks back in an hour.
     }
 }
+
+
+Check-IPAddress
