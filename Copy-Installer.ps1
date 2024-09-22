@@ -1,59 +1,55 @@
-# IP of the Domain Controller
+#domain controller IP 
 $ipAddress = "10.153.1.10"
 
-# Expected size of the folder in bytes (3,509,962,297 bytes)
+#Size of a complete installation folder
 $expectedSize = 3509962297
 
-# Function to calculate the folder size
+#Function to calculate the current installation folder size if it doesn exist
 function Get-FolderSize {
     param (
         [string]$folderPath
     )
-    
     if (Test-Path $folderPath) {
-        # Calculate folder size by summing the size of all files
+        #Sum up all the file's sizes
         $folderSize = (Get-ChildItem -Path $folderPath -Recurse | Measure-Object -Property Length -Sum).Sum
         return $folderSize
     }
-    return 0  # Return 0 if folder doesn't exist
+    return 0
 }
 
-# Main script that will install the Vault Client
+
 $scriptToRun = {
-    # Location of the installation files
+    #Location of the installation files
     $networkPath = "\\10.153.1.10\DData\Brobs\AutocadDeployment"
     $extractFolder = "C:\"
-
-    # Copy the installation files from the network path to the local machine
     
+    #Copy them over
     Copy-Item -Path $networkPath -Destination $extractFolder -Recurse -Force
     
 }
 
-# Check if the IP is online using ping
+#Check if on the company network
 function Check-IPAddress {
     $pingResult = Test-Connection -ComputerName $ipAddress -Count 1 -Quiet
     $folderPath = "C:\AutocadDeployment"
-
-    # Check if the folder exists and if its size matches the expected size
+    #Check if the folder exists and if its size matches the expected size
     if (Test-Path $folderPath) {
         $currentSize = Get-FolderSize -folderPath $folderPath
-        if ($currentSize -eq $expectedSize) {            
-            return  # Exit if the folder exists and its size matches the expected size
-        } else {            
+        if ($currentSize -eq $expectedSize) {           
+            return  #If the complete folder is already present, exit the script
+        } else {
+        
         }
     } else {
         
     }
 
-    # If the server is reachable and the folder size is incorrect or folder doesn't exist, run the main script
-    if ($pingResult) {
-        
+    #If on the company network, and folder doesn't exist/not the expected size
+    if ($pingResult) {       
         & $scriptToRun
     } else {
         
     }
 }
 
-# Run the function to check IP and run the script if necessary
 Check-IPAddress
